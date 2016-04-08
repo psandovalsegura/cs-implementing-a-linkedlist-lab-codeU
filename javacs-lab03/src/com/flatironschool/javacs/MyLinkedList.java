@@ -1,5 +1,5 @@
 /**
- * 
+ * Pedro Sandoval
  */
 package com.flatironschool.javacs;
 
@@ -15,17 +15,17 @@ import java.util.ListIterator;
  *
  */
 public class MyLinkedList<E> implements List<E> {
-	
+
 	/**
 	 * Node is identical to ListNode from the example, but parameterized with T
-	 * 
+	 *
 	 * @author downey
 	 *
 	 */
 	private class Node {
 		public E cargo;
 		public Node next;
-		
+
 		public Node() {
 			this.cargo = null;
 			this.next = null;
@@ -42,12 +42,12 @@ public class MyLinkedList<E> implements List<E> {
 			return "Node(" + cargo.toString() + ")";
 		}
 	}
-	
+
 	private int size;            // keeps track of the number of elements
 	private Node head;           // reference to the first node
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public MyLinkedList() {
 		head = null;
@@ -63,8 +63,11 @@ public class MyLinkedList<E> implements List<E> {
 		mll.add(1);
 		mll.add(2);
 		mll.add(3);
+		System.out.println(mll.indexOf(null));
+		//mll.add(null);
+		//System.out.println(mll.indexOf(null));
 		System.out.println(Arrays.toString(mll.toArray()) + " size = " + mll.size());
-		
+
 		mll.remove(new Integer(2));
 		System.out.println(Arrays.toString(mll.toArray()) + " size = " + mll.size());
 	}
@@ -85,7 +88,29 @@ public class MyLinkedList<E> implements List<E> {
 
 	@Override
 	public void add(int index, E element) {
-		// TODO: fill this in
+		if (index < 0 || index > this.size){
+			throw new IndexOutOfBoundsException();
+		}
+
+		//Count indexes to the pre-correct space
+		if (index == 0) {
+			Node insertNode = new Node(element, this.head);
+			this.head = insertNode;
+		} else {
+			Node currentNode = this.head;
+			int amtForward = index;
+			while(amtForward > 1) {
+				currentNode = currentNode.next;
+				amtForward--;
+			}
+
+			Node toPoint = currentNode.next;
+			//Create element
+			Node insertNode = new Node(element, toPoint);
+			//Make pre-correct space point to inserted node
+			currentNode.next = insertNode;
+		}
+		this.size++;
 	}
 
 	@Override
@@ -146,14 +171,28 @@ public class MyLinkedList<E> implements List<E> {
 
 	@Override
 	public int indexOf(Object target) {
-		// TODO: fill this in
+		//Check each element in the list
+		int index = 0;
+		Node currentNode = this.head;
+		do {
+			if (currentNode.cargo == target || currentNode.cargo.equals(target)) {
+				return index;
+			}
+			currentNode = currentNode.next;
+			index++;
+		} while (currentNode.next != null);
+
+		//Check the last node (which points to null)
+		if (currentNode.cargo == target || currentNode.cargo.equals(target)) {
+			return index;
+		}
 		return -1;
 	}
 
 	/** Checks whether an element of the array is the target.
-	 * 
+	 *
 	 * Handles the special case that the target is null.
-	 * 
+	 *
 	 * @param target
 	 * @param object
 	 */
@@ -201,8 +240,32 @@ public class MyLinkedList<E> implements List<E> {
 
 	@Override
 	public boolean remove(Object obj) {
-		// TODO: fill this in
-		return false;
+		Node currentNode = this.head;
+		//check the first node if it needs removal
+		if (obj.equals(currentNode.cargo)) {
+			this.head = currentNode.next;
+			this.size--;
+			return true;
+		}
+
+		//attain the previous node and the object
+		while ( currentNode.next != null ) {
+			if (obj.equals(currentNode.next.cargo)) {
+				break;
+			}
+			currentNode = currentNode.next;
+		}
+
+		// Loop may have reached end or attained a previous node
+		if (currentNode.next == null) {
+			return false;
+		} else {
+			//Attain the node pretending the between node is removed
+			Node nextToPoint = currentNode.next.next;
+			currentNode.next = nextToPoint;
+			this.size--;
+			return true;
+		}
 	}
 
 	@Override
@@ -276,6 +339,6 @@ public class MyLinkedList<E> implements List<E> {
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		throw new UnsupportedOperationException();		
+		throw new UnsupportedOperationException();
 	}
 }
